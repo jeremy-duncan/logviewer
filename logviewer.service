@@ -1,0 +1,34 @@
+[Unit]
+Description=Log viewer (read-only web interface for *.log files)
+After=network-online.target rsyslog.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=logviewer
+Group=logviewer
+# Ubuntu's rsyslog writes /var/log files as syslog:adm with mode 0640.
+SupplementaryGroups=adm
+ExecStart=/usr/bin/python3 /opt/logviewer/logviewer.py --config /etc/logviewer/logviewer.conf serve
+Restart=on-failure
+RestartSec=5
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target
