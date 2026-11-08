@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Log viewer</title>
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<header class="bar">
+  <h1 id="title">Log viewer</h1>
+  <form id="search" class="query" autocomplete="off">
+    <input id="q" type="text" spellcheck="false" autocapitalize="off"
+           placeholder='program:sshd severity=err "failed password"' aria-label="Search query">
+    <select id="range" aria-label="Time range">
+      <option value="">Any time</option>
+      <option value="900">Last 15 minutes</option>
+      <option value="3600">Last hour</option>
+      <option value="86400">Last 24 hours</option>
+      <option value="604800">Last 7 days</option>
+      <option value="2592000">Last 30 days</option>
+    </select>
+    <select id="limit" aria-label="Maximum records">
+      <option value="100">100 records</option>
+      <option value="500" selected>500 records</option>
+      <option value="1000">1,000 records</option>
+      <option value="2000">2,000 records</option>
+    </select>
+    <button type="submit" class="primary">Search</button>
+    <button type="button" id="live" aria-pressed="false">Live</button>
+  </form>
+</header>
+
+<div class="layout">
+  <aside>
+    <section aria-labelledby="files-h">
+      <div class="side-head">
+        <h2 id="files-h">Files</h2>
+        <span class="side-actions">
+          <button type="button" id="files-all" class="link">All</button>
+          <button type="button" id="files-none" class="link">None</button>
+        </span>
+      </div>
+      <input id="files-filter" type="text" placeholder="Filter files" aria-label="Filter file list">
+      <ul id="files" class="files"></ul>
+    </section>
+    <section aria-labelledby="fields-h">
+      <div class="side-head">
+        <h2 id="fields-h">Fields</h2>
+      </div>
+      <p id="fields-note" class="note">Fields found in the newest lines of the selected files. Select a value to filter on it.</p>
+      <ul id="fields" class="fields"></ul>
+    </section>
+  </aside>
+
+  <main>
+    <div id="status" class="status" role="status" aria-live="polite">Loading files.</div>
+    <details class="help">
+      <summary>Search syntax</summary>
+      <dl>
+        <dt><code>failed password</code></dt>
+        <dd>Terms are combined with AND and matched anywhere in the line. Quote phrases.</dd>
+        <dt><code>program:sshd</code></dt>
+        <dd>Field contains the text, ignoring case.</dd>
+        <dt><code>src=10.1.*</code></dt>
+        <dd>Field equals the value. <code>*</code> and <code>?</code> are wildcards. <code>host=*</code> matches lines that have the field.</dd>
+        <dt><code>message~"failed .* from"</code></dt>
+        <dd>Field matches a regular expression.</dd>
+        <dt><code>-program:cron</code></dt>
+        <dd>A leading minus excludes matches.</dd>
+        <dt><code>severity=err OR severity=crit</code></dt>
+        <dd>OR separates groups of ANDed terms.</dd>
+        <dt><code>src="fe80::1"</code></dt>
+        <dd>IPv6 addresses work as plain terms or as quoted field values. A bare token such as <code>host:port</code> is read as a field, so quote it to search for the text.</dd>
+      </dl>
+      <p>Fields: <code>timestamp host program pid severity facility message file</code>, plus every <code>key=value</code> pair found in the message. Row colour follows the syslog severity when the line has one, and otherwise a keyword hint (error, fail, denied, warn).</p>
+    </details>
+    <div class="head" aria-hidden="true">
+      <span>Time</span><span>File</span><span>Host</span><span>Program</span><span>Message</span>
+    </div>
+    <ol id="results" class="entries"></ol>
+    <p id="empty" class="empty" hidden>No records match. Check the spelling of the field name, widen the time range, or select more files.</p>
+  </main>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>
